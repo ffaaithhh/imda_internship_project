@@ -7,6 +7,9 @@ label_csv = open('labelled_data.csv', 'w', encoding='utf-8')
 
 csv_reader = csv.reader(clean_csv)
 
+# Create headers for the labelled dataset
+label_csv.write("sentiment, text\n")
+
 for row in csv_reader:
     if len(row) == 0:
         continue
