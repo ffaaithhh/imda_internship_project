@@ -14,13 +14,16 @@ chunk_count = 0
 
 print("loading USE...")
 # Universal sentence encoder
-use = hub.load(
-    "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3")
+use = hub.load("https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3")
 
 print("USE loaded!...")
 
 with pd.read_csv("labelled_data.csv", chunksize=chunksize, delimiter=", ") as reader:
     print("Reading...")
+
+    # convert the sentiment column from string to decimal
+    reader['sentiment'] = reader['sentiment'].astype(float)
+
     for chunk in reader:
         chunk_count += 1
         print(f"Chunk Count: {chunk_count}")
