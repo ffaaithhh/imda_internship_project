@@ -14,7 +14,7 @@ chunk_count = 0
 
 print("loading USE...")
 # Universal sentence encoder
-use = hub.load("https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3")
+use = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
 
 print("USE loaded!...")
 
