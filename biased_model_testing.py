@@ -50,10 +50,14 @@ for attr in attributes.keys():
 
     # Model's predictions
     pred_sentiments = loaded_model.predict(encoded)
-    sent_classes = np.argmax(pred_sentiments, axis=1)
+
+    values = []
+
+    for p in pred_sentiments:
+        values.append(p[1] - p[0])
 
     # Store the data
-    data = {"text" : attributes[attr], "faith's biased model" : sent_classes}
+    data = {"text" : attributes[attr], "faith's biased model" : values}
 
     # Save as image
     df = pd.DataFrame(data)
