@@ -117,12 +117,15 @@ print("Model Step 5")
 model.compile(
     loss='categorical_crossentropy', 
     optimizer=keras.optimizers.Adam(0.001),
-    metrics=['accuracy']
+    metrics=[tf.keras.metrics.BinaryAccuracy(),
+                         tf.keras.metrics.TruePositives(),
+                         tf.keras.metrics.TrueNegatives(),
+                         tf.keras.metrics.FalsePositives(),
+                         tf.keras.metrics.FalseNegatives()]
 )
 
 print("Model Step 6")
 
-# error here in model.fit()
 history = model.fit(
     x_train, y_train, 
     epochs=10, 
@@ -132,19 +135,8 @@ history = model.fit(
     shuffle=True
 )
 
-print("Model Step 7")
-
-plt.plot(history.history['loss'], label='train loss')
-plt.plot(history.history['val_loss'], label='val loss')
-plt.xlabel("epoch")
-plt.ylabel("Cross-entropy loss")
-plt.legend();
-
-plt.plot(history.history['accuracy'], label='train accuracy')
-plt.plot(history.history['val_accuracy'], label='val accuracy')
-plt.xlabel("epoch")
-plt.ylabel("accuracy")
-plt.legend();
+print("=====")
+print(history.history['binary_accuracy'])
 
 # Testing the model
 model.evaluate(x_test, y_test)

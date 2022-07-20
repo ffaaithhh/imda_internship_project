@@ -10,10 +10,12 @@ from sklearn.model_selection import train_test_split
 from tensorflow import keras
 import matplotlib.pyplot as plt
 import os
-from keras.models import load_model
-from keras.models import model_from_json
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.autograd import Variable
+from sklearn import preprocessing
 
-pd.options.display.max_colwidth = 200
 os.environ["TFHUB_CACHE_DIR"] = "tf_cache"
 
 # Load the text encoder - Universal Senence Encoder by Google -- First time can take as long as 10 minutes
@@ -54,10 +56,17 @@ train_text, test_text, y_train, y_test = train_test_split (
 print("Data Successfully Split")
 
 # Encoding my texts
-x_test = []
+x_train = []
+for sen in tqdm(train_text):
+    emb = use([sen])   # error here
+    text_emb = tf.reshape(emb, [-1]).numpy()
+    x_train.append(text_emb)
 
-for text in tqdm(test_text):
-    emb = use([text])
+x_train = np.array(x_train)
+
+x_test = []
+for sen in tqdm(test_text):
+    emb = use([sen])
     text_emb = tf.reshape(emb, [-1]).numpy()
     x_test.append(text_emb)
 
@@ -65,23 +74,35 @@ x_test = np.array(x_test)
 
 print("Universal Sentence Encoding Successful")
 
-# load json and create model
-json_file = open('model_num.json', 'r')
+class Net(nn.Module):
+    def __init__(self, in_count, output_count):
+        super(Net, self).__init__()
+        self.fc1 = nn.Linear(in_count, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, output_count)
+        self.softmax = nn.Softmax(dim=1)
+    
+    def forward(self, x):
+        print("Forward!")
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        x = self.fc3(x)
+        return self.softmax(x)
 
-loaded_model_json = json_file.read()
-json_file.close()
-loaded_model = model_from_json(loaded_model_json)
+x_train = Variable(torch.Tensor(x_train).float())
+x_test = Variable(torch.Tensor(x_test).float())
+y_train = Variable(torch.LongTensor(y_train))
+y_test = Variable(torch.LongTensor(y_test))
 
-# load weights into new model
-loaded_model.load_weights("model_num.h5")
-print("Loaded model from disk")
+x = df.text
+model = Net(2, 2)
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
-loaded_model.save('model_num.hdf5')
-loaded_model=load_model('model_num.hdf5')
-
-predict_sen = loaded_model.predict(x_test[10:20])
-classes_x = np.argmax(predict_sen,axis=1)
-print(x_test[10:11])
-print(type(x_test))
-
-
+for epoch in range(100):
+    optimizer.zero_grad()
+    out = model(x_train)
+    loss = criterion(out, y_train)
+    loss.backward()
+    optimizer.step()
+    print(f"Epoch {epoch+1}, loss: {loss.item()}")
