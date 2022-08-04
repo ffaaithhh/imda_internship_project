@@ -20,7 +20,6 @@ use = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
 
 # Begin demo
 continueDemo = True
-
 while continueDemo:
     # Ask user for sentence input
     user_input = input("Enter sentence: ")
@@ -51,12 +50,15 @@ while continueDemo:
 
     # Save to csv file
     with open("demo_results.csv", "a") as file:
-        file.write(f"{user_input},{prediction[0]},{predicted_value},{sentiment}\n")
+        file.write(
+            f"{user_input},{prediction[0]},{predicted_value},{sentiment}\n")
 
     print("--------")
-    print(f"Sentence: {user_input}\nPrediction: {predicted_value}\nSentiment: {sentiment}")
+    print(
+        f"Sentence: {user_input}\nPrediction: {predicted_value}\nSentiment: {sentiment}")
     print("--------")
 
-    continueDemo = bool(int(input("Do you want to try another? Yes->1, No->0: ")))
+    continueDemo = bool(
+        int(input("Do you want to try another? Yes->1, No->0: ")))
 
 print("Thank you, hope you liked the demo!")
